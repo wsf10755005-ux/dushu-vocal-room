@@ -1,0 +1,10 @@
+{
+  "title": "我的第一段旋律（秒與 MIDI 音高）",
+  "bpm": 80,
+  "notes": [
+    {"start": 0, "duration": 0.675, "midi": 60, "phrase": 1, "lyric": "ma"},
+    {"start": 0.75, "duration": 0.675, "midi": 62, "phrase": 1, "lyric": "ma"},
+    {"start": 1.5, "duration": 0.675, "midi": 64, "phrase": 1, "lyric": "ma"},
+    {"start": 2.25, "duration": 1.35, "midi": 60, "phrase": 1, "lyric": "ma"}
+  ]
+}

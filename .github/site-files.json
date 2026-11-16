@@ -1,0 +1,138 @@
+[
+  {
+    "path": "app.js",
+    "sha256": "a946d5e35076bc4a3e30a0e9cc189f4493657576d428f59b3e9d33af1da1e1d4"
+  },
+  {
+    "path": "audio.js",
+    "sha256": "09a1438daba283599a25e1dc0f634ad68cf5aa410cc78e1f458b285481b0c852"
+  },
+  {
+    "path": "brand-logo.jpg",
+    "sha256": "d75574c1c205e6edd486c6bdcbc19d437ad1af913fa7aa02e0e5b8b0ea6c60aa"
+  },
+  {
+    "path": "coach.js",
+    "sha256": "f73daa2426e6ead4d2c26ba0c401a112a5d0ac0b0246f4bbd614963e9722d2e3"
+  },
+  {
+    "path": "example-score.json",
+    "sha256": "352d60559bbb68540533bf159eabab86008a2e60e9ac568fca9879f73ee5313e"
+  },
+  {
+    "path": "icon-192.png",
+    "sha256": "eeae40db2fcf15e974053dc416181e5b43a502e721bc0b133ddcb1b6bd3cb14f"
+  },
+  {
+    "path": "icon-512.png",
+    "sha256": "1537c9628f7aa06d9c20f2d19725253315fff6ac3a5f13ebd963bda7a8e10e2e"
+  },
+  {
+    "path": "icon.svg",
+    "sha256": "88ec43087aa84339e23c7ba0c0293cc94d1d598db62cbb5ffb41b8d4e8f2aa85"
+  },
+  {
+    "path": "index.html",
+    "sha256": "48b95f95b71b759a5b51e6d2d517f148625ebbee3119ab149749e9e88b7ee405"
+  },
+  {
+    "path": "jianpu.css",
+    "sha256": "0fc72bf47d6a260e91720b7acdb74e610358cd20d749aa88aaa40dac9fe41dc2"
+  },
+  {
+    "path": "jianpu.js",
+    "sha256": "81160b0013294b190f8e04cf50f1b32ccd83ecf2a9a7db2325bfbc1dce8043ee"
+  },
+  {
+    "path": "lrc.js",
+    "sha256": "40983b4da3f838058d19011d2435f6ba5743521cdc74116466fd3da0642f920d"
+  },
+  {
+    "path": "manifest.webmanifest",
+    "sha256": "1e2b0475afa67bdb5484ea6122a23372cec7872114dddb5fe93edcffab64e527"
+  },
+  {
+    "path": "midi-export.js",
+    "sha256": "2fad0ba0a3d0611ac9b878c9f80a47bed4b1f035e2d54e40cb15641a3a5d44ca"
+  },
+  {
+    "path": "monitor-worker.js",
+    "sha256": "03ef24b80efc63b5400b18cee1e4a4de43ac5c771aae9b534479328d4cc25344"
+  },
+  {
+    "path": "monitor.css",
+    "sha256": "7b4a084aa15cc85f7dd1a2f3b11c4c90b46fcdb312cc8d87fc1459a4117b47de"
+  },
+  {
+    "path": "monitor.js",
+    "sha256": "6c9cdea66af03e574d1911828ffcd963affb0fb6e9c21f0e458ed42ebaab33ec"
+  },
+  {
+    "path": "recordings.js",
+    "sha256": "fd1c554450fb389c11635d31edb732440922311daeec1779571a8ae851121803"
+  },
+  {
+    "path": "reference-worker.js",
+    "sha256": "ffbb5c31a05f26a432ba4dd1752300f749ffa026320756348190d16e40c2a76d"
+  },
+  {
+    "path": "reference.js",
+    "sha256": "cd1638ba335ce9cf8efd12a4b526b5d1c244df9110a74f086789d42c1ab73b30"
+  },
+  {
+    "path": "score.js",
+    "sha256": "ac89bcf4d39481160fc8bca148acc4506c21f6535e5040a648f7822fa96ca5c0"
+  },
+  {
+    "path": "storage.js",
+    "sha256": "ee24a0ada8ab585af6c90b24ab85b8364bea77cc9e9432d5bfaa5ec027c0c417"
+  },
+  {
+    "path": "style.css",
+    "sha256": "548564dcb0f47b8e37105d3ab3558b147c661f3c25e0d47570825167a531b7e2"
+  },
+  {
+    "path": "sw.js",
+    "sha256": "0aa36d95d46611f9cc089c7c4ece50918b9a92d6a6821a9d9db4d28dc6fb890e"
+  },
+  {
+    "path": "theone-theme.css",
+    "sha256": "7b3f5b7ef7e46de7affd8c7f0cd637b163bc84336f8d47ff6c64def17a6ab2cd"
+  },
+  {
+    "path": "vendor/tesseract/eng.traineddata",
+    "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  },
+  {
+    "path": "vendor/tesseract/LICENSE",
+    "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+  },
+  {
+    "path": "vendor/tesseract/README.txt",
+    "sha256": "83e8f24b43373f0e10137847b6ce1197d5031001df967c0f920bd9ace9d31392"
+  },
+  {
+    "path": "vendor/tesseract/tesseract-core-lstm.wasm.js",
+    "sha256": "eef5f8b2f8e20e150680b20adaec4a60babafee3adbe8a94583c81fee46e8680"
+  },
+  {
+    "path": "vendor/tesseract/tesseract.esm.min.js",
+    "sha256": "64871d76c75609fd5413b88a8171e2ef40deedd77d5875ba23df104b2d05eb29"
+  },
+  {
+    "path": "vendor/tesseract/tesseract.min.js.LICENSE.txt",
+    "sha256": "cdf963ced7d25a0f98901a547647b4d6e2dbe0197fd78c87a059a87b0e542fe2"
+  },
+  {
+    "path": "vendor/tesseract/TRAINEDDATA-LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "path": "vendor/tesseract/worker.min.js",
+    "sha256": "576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d"
+  },
+  {
+    "path": "vendor/tesseract/worker.min.js.LICENSE.txt",
+    "sha256": "45f54171aeaa1d10c0c1a66f374b7bba1f02472b1487fbe892eec04f840002ac"
+  }
+]

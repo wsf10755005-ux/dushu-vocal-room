@@ -187,6 +187,8 @@ function validateScore(score) {
   for (const key of ['format', 'description', 'license', 'selectedPart', 'selectedVoice', 'kind', 'vowel']) optionalString(score, key, key === 'description' || key === 'license' ? 10000 : 1000);
   optionalNumber(score, 'selectedTrack', 0, 10000, true);
   optionalNumber(score, 'root', 0, 127);
+  optionalNumber(score, 'tonic', 12, 108, true);
+  optionalNumber(score, 'numberedTonic', 12, 108, true);
   optionalNumber(score, 'audioOffset', 0, 1800);
   optionalDate(score, 'updatedAt');
   for (const key of ['warnings', 'parts', 'tracks']) if (score[key] != null && (!Array.isArray(score[key]) || score[key].length > 10000)) throw new Error(`${key} 必須是有效陣列。`);
@@ -212,6 +214,7 @@ function validateSetting(key, value) {
     if (!safeObject(value)) throw new Error('偏好設定格式不正確。');
     optionalNumber(value, 'tolerance', 1, 100);
     optionalNumber(value, 'latencyMs', -2000, 2000);
+    optionalNumber(value, 'microphoneThresholdDb', -80, -20);
     optionalBoolean(value, 'guide'); optionalBoolean(value, 'metronome');
   }
   if (key === 'range' && value != null) {

@@ -10,7 +10,7 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
  * continue the preceding event. Bar lines start a new phrase. */
 export function parseJianpu(text,{tonic=60,bpm=80,beatsPerBar=4,title='圖片簡譜'}={}) {
   if(typeof text!=='string'||text.length>40000)throw new Error('簡譜文字過長或格式不正確。');
-  if(!finite(tonic)||tonic<12||tonic>108||!finite(bpm)||bpm<30||bpm>240||!Number.isInteger(beatsPerBar)||beatsPerBar<1||beatsPerBar>12)throw new Error('請設定有效的調性、速度與拍號。');
+  if(!Number.isInteger(tonic)||tonic<12||tonic>108||!finite(bpm)||bpm<30||bpm>240||!Number.isInteger(beatsPerBar)||beatsPerBar<1||beatsPerBar>12)throw new Error('請設定有效的調性、速度與拍號。');
   let source=text.normalize('NFKC').replace(/[’′]/g,"'").replace(/[，]/g,',').replace(/[−–—]/g,'-').replace(/[｜]/g,'|');
   source=source.replace(/([#b♯♭])\s+(?=[0-7])/g,'$1');
   source=source.replace(/([0-7])([\u0307\u0323]+)/g,(_,n,dots)=>n+[...dots].map(d=>d==='\u0307'?"'":',').join(''));
@@ -32,13 +32,13 @@ export function parseJianpu(text,{tonic=60,bpm=80,beatsPerBar=4,title='圖片簡
   if(unknown.trim())warnings.push(`未辨識的記號已略過：${unknown.trim().slice(0,40)}`);
   let beat=0;const notes=[];events.forEach(event=>{if(!hasBar)event.phrase=Math.floor(beat/beatsPerBar)+1;event.start=beat*60/bpm;event.duration=event.beats*60/bpm;if(event.degree)notes.push({start:event.start,duration:event.duration,midi:event.midi,phrase:event.phrase,lyric:''});beat+=event.beats;});
   if(!notes.length)throw new Error('還沒有可使用的音符。請選取數字簡譜區域，或輸入 1～7。');
-  return {title:String(title||'圖片簡譜').slice(0,160),bpm,duration:beat*60/bpm,notes,events,notation:source,warnings,parts:[],tracks:[],format:'jianpu-image'};
+  return {title:String(title||'圖片簡譜').slice(0,160),bpm,tonic,numberedTonic:tonic,duration:beat*60/bpm,notes,events,notation:source,warnings,parts:[],tracks:[],format:'jianpu-image'};
 }
 
-export function scoreFromEvents(events,{title='圖片簡譜',bpm=80,notation=''}={}) {
-  if(!Array.isArray(events)||!events.length||events.length>2000||!finite(bpm)||bpm<30||bpm>240)throw new Error('請先建立有效的音符。');
+export function scoreFromEvents(events,{title='圖片簡譜',bpm=80,notation='',tonic=60}={}) {
+  if(!Array.isArray(events)||!events.length||events.length>2000||!finite(bpm)||bpm<30||bpm>240||!Number.isInteger(tonic)||tonic<12||tonic>108)throw new Error('請先建立有效的音符。');
   let time=0;const notes=[];for(const e of events){if(!finite(e.beats)||e.beats<=0||e.beats>64||e.midi!==null&&(!finite(e.midi)||e.midi<0||e.midi>127))throw new Error('請檢查音高與拍數。');const duration=e.beats*60/bpm;if(e.midi!==null)notes.push({start:time,duration,midi:e.midi,phrase:e.phrase||1,lyric:''});time+=duration;}
-  if(!notes.length)throw new Error('簡譜中需要至少一個非休止的音符。');return {title:String(title||'圖片簡譜').slice(0,160),notes,bpm,duration:time,notation,warnings:[],format:'jianpu-image',parts:[],tracks:[]};
+  if(!notes.length)throw new Error('簡譜中需要至少一個非休止的音符。');return {title:String(title||'圖片簡譜').slice(0,160),notes,bpm,tonic,numberedTonic:tonic,duration:time,notation,warnings:[],format:'jianpu-image',parts:[],tracks:[]};
 }
 
 function components(image,x0,y0,x1,y1){const {width,height,data}=image;x0=clamp(Math.floor(x0),0,width);x1=clamp(Math.ceil(x1),0,width);y0=clamp(Math.floor(y0),0,height);y1=clamp(Math.ceil(y1),0,height);const w=x1-x0,h=y1-y0;if(w<=0||h<=0)return[];const seen=new Uint8Array(w*h),out=[];const dark=(x,y)=>data[((y+y0)*width+x+x0)*4]<150;for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){const i=yy*w+xx;if(seen[i]||!dark(xx,yy))continue;const queue=[i];seen[i]=1;let minX=xx,maxX=xx,minY=yy,maxY=yy,area=0;for(let q=0;q<queue.length;q++){const p=queue[q],x=p%w,y=Math.floor(p/w);area++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);for(const [dx,dy]of [[-1,0],[1,0],[0,-1],[0,1]]){const nx=x+dx,ny=y+dy,ni=ny*w+nx;if(nx>=0&&nx<w&&ny>=0&&ny<h&&!seen[ni]&&dark(nx,ny)){seen[ni]=1;queue.push(ni)}}}out.push({x:x0+minX,y:y0+minY,w:maxX-minX+1,h:maxY-minY+1,area});}return out;}

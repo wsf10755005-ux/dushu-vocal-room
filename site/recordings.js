@@ -47,7 +47,8 @@ function normalize(input,{existing=null}={}){
   const mimeType=string(input.mimeType??blob?.type,'音檔類型',150);
   if(mimeType&&!/^audio\/[a-z0-9.+-]+(?:\s*;[^\r\n]*)?$/i.test(mimeType)&&mimeType!=='application/octet-stream')throw new Error('音檔類型無效。');
   const lyrics=validateLyrics(input.lyrics);
-  return {id,title,folder,createdAt,updatedAt:new Date().toISOString(),duration:input.duration,frames,blob,mimeType,source,lyrics};
+  if(input.tonic!=null&&(!Number.isInteger(input.tonic)||input.tonic<0||input.tonic>127))throw new Error('簡譜調性必須是有效音高。');
+  return {id,title,folder,createdAt,updatedAt:new Date().toISOString(),duration:input.duration,frames,blob,mimeType,source,lyrics,...(input.tonic!=null?{tonic:input.tonic}:{})};
 }
 export async function saveRecording(input){const row=normalize(input);const existing=await readOne(row.id);if(existing)row.createdAt=existing.createdAt;await write(row);return row.id;}
 export async function listRecordings(){return (await readAll()).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(({id,title,folder,createdAt,updatedAt,duration,blob,mimeType,source,frames,lyrics})=>({id,title,folder,createdAt,updatedAt,duration,mimeType,source,hasAudio:!!blob?.size,frameCount:frames.length,hasLyrics:!!lyrics}));}

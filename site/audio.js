@@ -5,6 +5,7 @@
  * Metrics are evidence-based: missing / unvoiced observations never earn points.
  */
 const PITCH_CLASSES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const DEFAULT_MIN_RMS = 0.00025;
 export const midiToFrequency = midi => 440 * 2 ** ((midi - 69) / 12);
 export const frequencyToMidi = frequency => 69 + 12 * Math.log2(frequency / 440);
 export const noteName = midi => {
@@ -17,16 +18,18 @@ export const rmsToDb = rms => rms > 0 ? 20 * Math.log10(rms) : -100;
 /** YIN cumulative mean normalized difference, with parabolic period refinement.
  * Averages adjacent samples when decimating; keeps >=16kHz for high-note precision.
  * Designed for one voice, not for extracting vocals from polyphonic audio.
+ * The quiet-signal floor is independent of YIN's periodicity confidence: a
+ * quieter voice is accepted without amplifying input or accepting random noise.
  */
-export function detectPitch(input, sampleRate) {
-  if (!input || input.length < 256 || !(sampleRate > 0)) return null;
+export function detectPitch(input, sampleRate, { minRms = DEFAULT_MIN_RMS } = {}) {
+  if (!input || input.length < 256 || !(sampleRate > 0) || !Number.isFinite(minRms) || minRms < 0) return null;
   let mean = 0;
   for (let i = 0; i < input.length; i++) mean += input[i];
   mean /= input.length;
   let energy = 0;
   for (let i = 0; i < input.length; i++) energy += (input[i] - mean) ** 2;
   const rms = Math.sqrt(energy / input.length);
-  if (!Number.isFinite(rms) || rms < 0.005) return null;
+  if (!Number.isFinite(rms) || rms < minRms) return null;
   const factor = Math.max(1, Math.floor(sampleRate / 16000));
   const rate = sampleRate / factor;
   const count = Math.floor(input.length / factor);
@@ -118,7 +121,7 @@ export function analyseSession({ frames = [], notes = [], duration = 0, latencyM
       const previousSilent = previousFrame && !finiteMidi(previousFrame);
       const pitchChanged = previousVoiced && Math.abs(frame.midi - previousVoiced.midi) > 0.65;
       const reattack = previousFrame && Number.isFinite(frame.rms) && Number.isFinite(previousFrame.rms)
-        && frame.rms > 0.008 && previousFrame.rms > 0 && frame.rms / previousFrame.rms > 2.3;
+        && frame.rms > DEFAULT_MIN_RMS && previousFrame.rms > 0 && frame.rms / previousFrame.rms > 2.3;
       if ((!previousVoiced || previousGap > 0.12 || previousSilent || pitchChanged || reattack) && frame.time - lastAttack > 0.09) {
         attacks.push({ time: frame.time, midi: frame.midi });
         lastAttack = frame.time;
@@ -215,12 +218,20 @@ export class AudioEngine {
   constructor() {
     this.context = null; this.stream = null; this.source = null; this.analyser = null;
     this.nodes = new Set(); this.running = false; this.timer = null; this.startToken = 0;
+    this.setInputThresholdDb(-72);
+  }
+  setInputThresholdDb(db) {
+    const value = Number(db);
+    if (!Number.isFinite(value)) throw new TypeError('麥克風偵測門檻必須是有限數字。');
+    this.inputThresholdDb = Math.max(-80, Math.min(-20, value));
+    this.minRms = 10 ** (this.inputThresholdDb / 20);
+    return this.inputThresholdDb;
   }
   async ensureContext() {
     const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!Context) throw new Error('這個瀏覽器不支援 Web Audio，請使用 Safari 或 Chrome。');
     if (!this.context || this.context.state === 'closed') this.context = new Context({ latencyHint: 'interactive' });
-    if (this.context.state === 'suspended') await this.context.resume();
+    if (this.context.state === 'suspended' || this.context.state === 'interrupted') await this.context.resume();
     return this.context;
   }
   async start(onFrame) {
@@ -230,7 +241,10 @@ export class AudioEngine {
     try {
       const context = await this.ensureContext();
       if (!globalThis.navigator?.mediaDevices?.getUserMedia) throw new Error('麥克風需要 HTTPS 網址或本機 localhost，請改用安全網址。');
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: { ideal: 1 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
+      if (token !== this.startToken) { stream.getTracks().forEach(t => t.stop()); return; }
+      // Some mobile browsers suspend the audio context during the permission UI.
+      if (context.state === 'suspended' || context.state === 'interrupted') await context.resume();
       if (token !== this.startToken) { stream.getTracks().forEach(t => t.stop()); return; }
       this.stream = stream;
       this.source = context.createMediaStreamSource(stream);
@@ -244,12 +258,12 @@ export class AudioEngine {
       const tick = () => {
         if (!this.running || !this.analyser) return;
         this.analyser.getFloatTimeDomainData(samples);
-        const pitch = detectPitch(samples, context.sampleRate);
+        const pitch = detectPitch(samples, context.sampleRate, { minRms: this.minRms });
         let sum = 0;
-        if (!pitch) for (let i = 0; i < samples.length; i++) sum += samples[i] ** 2;
+        for (let i = 0; i < samples.length; i++) sum += samples[i] ** 2;
         const observedAt = performance.now() / 1000;
         const time = observedAt - samples.length / (2 * context.sampleRate);
-        onFrame({ time, observedAt, ...(pitch || { frequency: null, midi: null, cents: null, note: '—', confidence: 0, rms: Math.sqrt(sum / samples.length) }) });
+        onFrame({ time, observedAt, ...(pitch || { frequency: null, midi: null, cents: null, note: '—', confidence: 0 }), rms: Math.sqrt(sum / samples.length) });
         this.timer = globalThis.setTimeout(tick, 33);
       };
       tick();

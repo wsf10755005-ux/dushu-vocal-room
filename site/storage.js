@@ -214,7 +214,8 @@ function validateSetting(key, value) {
     if (!safeObject(value)) throw new Error('偏好設定格式不正確。');
     optionalNumber(value, 'tolerance', 1, 100);
     optionalNumber(value, 'latencyMs', -2000, 2000);
-    optionalNumber(value, 'microphoneThresholdDb', -80, -20);
+    optionalNumber(value, 'microphoneThresholdDb', -100, -20);
+    optionalNumber(value, 'sensitivityVersion', 1, 100, true);
     optionalBoolean(value, 'guide'); optionalBoolean(value, 'metronome');
   }
   if (key === 'range' && value != null) {

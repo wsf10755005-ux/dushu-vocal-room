@@ -5,7 +5,7 @@
  * Metrics are evidence-based: missing / unvoiced observations never earn points.
  */
 const PITCH_CLASSES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const DEFAULT_MIN_RMS = 0.00025;
+const DEFAULT_MIN_RMS = 0.00001;
 export const midiToFrequency = midi => 440 * 2 ** ((midi - 69) / 12);
 export const frequencyToMidi = frequency => 69 + 12 * Math.log2(frequency / 440);
 export const noteName = midi => {
@@ -218,12 +218,12 @@ export class AudioEngine {
   constructor() {
     this.context = null; this.stream = null; this.source = null; this.analyser = null;
     this.nodes = new Set(); this.running = false; this.timer = null; this.startToken = 0;
-    this.setInputThresholdDb(-72);
+    this.setInputThresholdDb(-100);
   }
   setInputThresholdDb(db) {
     const value = Number(db);
     if (!Number.isFinite(value)) throw new TypeError('麥克風偵測門檻必須是有限數字。');
-    this.inputThresholdDb = Math.max(-80, Math.min(-20, value));
+    this.inputThresholdDb = Math.max(-100, Math.min(-20, value));
     this.minRms = 10 ** (this.inputThresholdDb / 20);
     return this.inputThresholdDb;
   }

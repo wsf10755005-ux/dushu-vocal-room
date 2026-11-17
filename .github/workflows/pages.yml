@@ -5,6 +5,7 @@ on:
     paths: ['site/**', '.github/**']
   workflow_dispatch:
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
@@ -36,9 +37,19 @@ jobs:
           fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
+        id: upload
         with:
           path: site
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Wait for uploaded artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
+        run: node .github/scripts/wait-for-pages-artifact.mjs
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
